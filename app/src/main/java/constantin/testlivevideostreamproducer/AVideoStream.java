@@ -112,9 +112,9 @@ public class AVideoStream extends AppCompatActivity{
             codec.start();
             drainEncoderThread.start();
         } catch (Exception e) {
-            Log.d(TAG, "Error MediaCodec.createEncoderByType");
+            e.printStackTrace();
             //There is no point of continuing when unable to create Encoder
-            finish();
+            notifyUserAndFinishActivity( "Error MediaCodec.createEncoderByType");
         }
         //Open main camera. We don't need to wait for the surface texture, since we set the callback once camera was opened
         CameraManager manager = (CameraManager) getSystemService(Context.CAMERA_SERVICE);
@@ -132,7 +132,7 @@ public class AVideoStream extends AppCompatActivity{
         } catch (CameraAccessException | NullPointerException e) {
             e.printStackTrace();
             //No point in continuing if we cannot open camera
-            finish();
+            notifyUserAndFinishActivity("Cannot open camera");
         }
     }
 
@@ -156,7 +156,6 @@ public class AVideoStream extends AppCompatActivity{
             cameraDevice = null;
         }
     };
-
     private final TextureView.SurfaceTextureListener surfaceTextureListener=new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
@@ -270,6 +269,13 @@ public class AVideoStream extends AppCompatActivity{
             encoderInputSurface.release();
             encoderInputSurface=null;
         }
+    }
+
+    //has to be called on the ui thread
+    private void notifyUserAndFinishActivity(final String message){
+        Log.d(TAG,message);
+        Toast.makeText(getApplicationContext(),message,Toast.LENGTH_LONG).show();
+        finish();
     }
 
 }
