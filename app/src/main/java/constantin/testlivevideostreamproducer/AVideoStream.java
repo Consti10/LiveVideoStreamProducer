@@ -37,8 +37,8 @@ public class AVideoStream extends AppCompatActivity{
 
     private Surface encoderInputSurface;
 
-    private static final int W=1280;
-    private static final int H=720;
+    private static final int W=1920;
+    private static final int H=1080;
     private static final int MDEIACODEC_ENCODER_TARGET_FPS=60;
 
     private CameraDevice cameraDevice;
@@ -49,9 +49,7 @@ public class AVideoStream extends AppCompatActivity{
     //private HandlerThread mBackgroundThread;
 
     private UDPSender mUDPSender;
-
     private Thread drainEncoderThread;
-
 
 
     @SuppressLint("MissingPermission")
@@ -64,7 +62,7 @@ public class AVideoStream extends AppCompatActivity{
         //mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
         previewTextureView =findViewById(R.id.mTextureView);
         //Initialize UDP sender
-        mUDPSender=new UDPSender();
+        mUDPSender=new UDPSender(this);
 
         //This thread will be started once the MediaCodec encoder has been created.
         //When decoding in LiveVideo10ms, testing indicates lower latency when constantly pulling on the output with one Thread.
@@ -91,6 +89,8 @@ public class AVideoStream extends AppCompatActivity{
                             // Can ignore if using getOutputFormat(outputBufferId)
                             //codec.getOu
                             //outputFormat = codec.getOutputFormat(); // option B
+                            //MediaFormat bufferFormat = codec.getOutputFormat();
+                            //Log.d(TAG,"INFO_OUTPUT_FORMAT_CHANGED "+bufferFormat.toString());
                         }
                     }
                 }
@@ -101,7 +101,7 @@ public class AVideoStream extends AppCompatActivity{
             codec= MediaCodec.createEncoderByType("video/avc");
             MediaFormat format = MediaFormat.createVideoFormat("video/avc",W,H);
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-            format.setInteger(MediaFormat.KEY_BIT_RATE,2*1024*1024); //2 MBit/s
+            format.setInteger(MediaFormat.KEY_BIT_RATE,40*1024*1024); //X MBit/s
             format.setInteger(MediaFormat.KEY_FRAME_RATE,MDEIACODEC_ENCODER_TARGET_FPS);
             format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL,10);
             format.setInteger(MediaFormat.KEY_LEVEL,MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
@@ -145,37 +145,31 @@ public class AVideoStream extends AppCompatActivity{
             //Which will then call the startStream()
             previewTextureView.setSurfaceTextureListener(surfaceTextureListener);
         }
-
         @Override
         public void onDisconnected(CameraDevice camera) {
             cameraDevice.close();
         }
-
         @Override
         public void onError(CameraDevice camera, int error) {
             cameraDevice.close();
             cameraDevice = null;
         }
     };
+
     private final TextureView.SurfaceTextureListener surfaceTextureListener=new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
             previewTexture=surface;
             startPreviewAndEncoding();
         }
-
         @Override
-        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        }
-
+        public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) { }
         @Override
         public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
             return false;
         }
-
         @Override
-        public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        }
+        public void onSurfaceTextureUpdated(SurfaceTexture surface) { }
     };
 
     private final MediaCodec.Callback mediaCodecCallback=new MediaCodec.Callback() {
@@ -222,7 +216,6 @@ public class AVideoStream extends AppCompatActivity{
             final CaptureRequest.Builder captureRequestBuilder = cameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
             captureRequestBuilder.addTarget(previewSurface);
             captureRequestBuilder.addTarget(encoderInputSurface);
-
 
             //Log.d("FPS", "SYNC_MAX_LATENCY_PER_FRAME_CONTROL: " + Arrays.toString(fpsRanges));
             Range<Integer> fpsRange=new Range<>(60,60);

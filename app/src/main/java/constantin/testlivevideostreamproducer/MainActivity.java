@@ -4,15 +4,21 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.preference.PreferenceManager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,6 +49,41 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        final EditText editText=findViewById(R.id.ip_address_edit_text);
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @SuppressLint("ApplySharedPref")
+            @Override
+            public void afterTextChanged(Editable s) {
+                writeIpAddress(context,s.toString());
+            }
+        });
+        findViewById(R.id.autofill_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String ip=IPResolver.resolveIpConnectedToHotspot(context);
+                if(ip!=null){
+                    editText.setText(ip);
+                    writeIpAddress(context,ip);
+                    Toast.makeText(context,"Set ip to "+ip,Toast.LENGTH_LONG).show();
+                }else{
+                    Toast.makeText(context,"Cannot autofill ip",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    @SuppressLint("ApplySharedPref")
+    private static void writeIpAddress(final Context context, final String ip){
+        PreferenceManager.getDefaultSharedPreferences(context).edit().
+                putString(context.getString(R.string.KEY_SP_UDP_IP),ip).commit();
     }
 
     //Permissions stuff
