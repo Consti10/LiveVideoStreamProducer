@@ -1,11 +1,16 @@
 package constantin.testlivevideostreamproducer;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
@@ -15,12 +20,9 @@ public class IPResolver {
     //with 192.168.1
     //return IP on success, null otherwise
     public static String resolveIpConnectedToHotspot(final Context c){
-        final ArrayList<String> ipsToTest=new ArrayList<>();
-        for(int i=2;i<256;i++){
-            //final String s="192.168.43."+i;
-            final String s="10.183.99."+i;
-            ipsToTest.add(s);
-        }
+        final ArrayList<String> ipsToTest=getIpsToPing();
+        //final ArrayList<String> ipsToTest=getIpsToTest();
+
        final List<String> allReachableAddresses=pingAllIPsMultiThreaded(ipsToTest,32);
         for(final String ip:allReachableAddresses){
             System.out.println("Found ip:"+ip);
@@ -113,6 +115,78 @@ public class IPResolver {
             if(end>data.size())end=data.size();
             final List<T> chunk=data.subList(i*chunkSize,end);
             ret.add(chunk);
+        }
+        return ret;
+    }
+
+    //Returns the ip address of the network interface that is most likely the hotspot providing interface
+    //Returns null on failure
+    private static String getIpOfHotspotProvider(){
+        final ArrayList<Inet4Address> addresses=new ArrayList<>();
+        try{
+            final Enumeration<NetworkInterface> networkInterfacesEnumeration=NetworkInterface.getNetworkInterfaces();
+            while (networkInterfacesEnumeration.hasMoreElements()){
+                final NetworkInterface networkInterface=networkInterfacesEnumeration.nextElement();
+                if(!networkInterface.isUp() || networkInterface.getName().contains("dummy0") || networkInterface.isLoopback()){
+                    continue;
+                }
+                //System.out.println("network if"+networkInterface.getName());
+                if(networkInterface.getName().contains("wlan")){
+                    final Enumeration<InetAddress> inetAddressesEnumeration=networkInterface.getInetAddresses();
+                    while (inetAddressesEnumeration.hasMoreElements()){
+                        InetAddress inetAddress=inetAddressesEnumeration.nextElement();
+                        //System.out.println("address"+inetAddress.getHostAddress());
+                        if(inetAddress instanceof Inet4Address){
+                            addresses.add((Inet4Address)inetAddress);
+                        }
+                    }
+                }
+            }
+            if(addresses.size()>0){
+                return addresses.get(addresses.size()-1).getHostAddress();
+            }else{
+                return "";
+            }
+        }catch(Exception e){e.printStackTrace();}
+        return "";
+    }
+
+    private static ArrayList<String> getIpsToPing(){
+        final String hotspotIp=getIpOfHotspotProvider();
+        System.out.println("Hotspot ip is"+hotspotIp);
+        if(hotspotIp!=null){
+            //Assume that the connected device has the same first 3 digits as the hotspot
+            final int[] elements=stringToIp(hotspotIp);
+            final ArrayList<String> ret=new ArrayList<>();
+            for(int i=0;i<256;i++){
+                if(i!=elements[3]){
+                    final String s=elements[0]+"."+elements[1]+"."+elements[2]+"."+i;
+                    ret.add(s);
+                }
+            }
+            return ret;
+        }else{
+            final ArrayList<String> ret=new ArrayList<>();
+            for(int i=2;i<256;i++){
+                final String s="192.168.43."+i;
+                ret.add(s);
+            }
+            return ret;
+        }
+    }
+
+
+    //Returns the 4 digits that make up an ip.
+    //Example: 192.168.1.1 -> [192,168,1,1]
+    private static int[] stringToIp(final String ip){
+        //System.out.println("Ip is "+ip);
+        String[] sub = ip.split("\\.");
+        //for(int i=0;i<sub.length;i++){
+        //    System.out.println("Chunck "+sub[i]);
+        //}
+        final int[] ret=new int[4];
+        for(int i=0;i<4;i++){
+            ret[i]=Integer.parseInt(sub[i]);
         }
         return ret;
     }
