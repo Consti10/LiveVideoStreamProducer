@@ -37,9 +37,9 @@ public class AVideoStream extends AppCompatActivity{
 
     private Surface encoderInputSurface;
 
-    private static final int W=1920;
-    private static final int H=1080;
-    private static final int MDEIACODEC_ENCODER_TARGET_FPS=60;
+    private static final int W=1280;
+    private static final int H=720;
+    private static final int MDEIACODEC_ENCODER_TARGET_FPS=30;
 
     private CameraDevice cameraDevice;
     private MediaCodec codec;
@@ -66,7 +66,7 @@ public class AVideoStream extends AppCompatActivity{
 
         //This thread will be started once the MediaCodec encoder has been created.
         //When decoding in LiveVideo10ms, testing indicates lower latency when constantly pulling on the output with one Thread.
-        //Also, we have to use another Thread for networking anyways
+        //Also, we have to use another Thread for networking anyways when using the 'callback' api
         drainEncoderThread=new Thread(new Runnable() {
             @Override
             public void run() {
@@ -101,7 +101,7 @@ public class AVideoStream extends AppCompatActivity{
             codec= MediaCodec.createEncoderByType("video/avc");
             MediaFormat format = MediaFormat.createVideoFormat("video/avc",W,H);
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-            format.setInteger(MediaFormat.KEY_BIT_RATE,10*1024*1024); //X MBit/s
+            format.setInteger(MediaFormat.KEY_BIT_RATE,2*1024*1024); //X MBit/s
             format.setInteger(MediaFormat.KEY_FRAME_RATE,MDEIACODEC_ENCODER_TARGET_FPS);
             format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL,10);
             //format.setInteger(MediaFormat.KEY_LEVEL,MediaCodecInfo.CodecProfileLevel.AVCLevel32);

@@ -15,13 +15,12 @@ import java.util.List;
 
 @SuppressWarnings("WeakerAccess")
 public class IPResolver {
-
-    //Assume that all devices connected to the hotspot start
-    //with 192.168.1
+    //Try to find the IP of the ground unit - e.g. the first device connected to the WIFI hotspot
+    //This methods makes some assumptions that might not be true on all devices - but testing is the only
+    //way to find out if they work
     //return IP on success, null otherwise
     public static String resolveIpConnectedToHotspot(final Context c){
         final ArrayList<String> ipsToTest=getIpsToPing();
-        //final ArrayList<String> ipsToTest=getIpsToTest();
 
        final List<String> allReachableAddresses=pingAllIPsMultiThreaded(ipsToTest,32);
         for(final String ip:allReachableAddresses){
@@ -36,7 +35,7 @@ public class IPResolver {
     /**
      * split work into chunks and reduce in the end.
      * Since the ping is implemented as a blocking call, creating more threads
-     * Than logical cpu cores still provides a speedup. However, creating a thread is a
+     * than logical cpu cores still provides a speedup. However, creating a thread is a
      * expensive operation itself, so increasing N_THREADS will not always reduce execution time
      **/
     private static List<String> pingAllIPsMultiThreaded(final ArrayList<String> ipsToTest, final int N_THREADS){
@@ -154,39 +153,55 @@ public class IPResolver {
     private static ArrayList<String> getIpsToPing(){
         final String hotspotIp=getIpOfHotspotProvider();
         System.out.println("Hotspot ip is"+hotspotIp);
-        if(hotspotIp!=null){
-            //Assume that the connected device has the same first 3 digits as the hotspot
-            final int[] elements=stringToIp(hotspotIp);
-            final ArrayList<String> ret=new ArrayList<>();
-            for(int i=0;i<256;i++){
-                if(i!=elements[3]){
-                    final String s=elements[0]+"."+elements[1]+"."+elements[2]+"."+i;
-                    ret.add(s);
-                }
-            }
-            return ret;
-        }else{
-            final ArrayList<String> ret=new ArrayList<>();
-            for(int i=2;i<256;i++){
-                final String s="192.168.43."+i;
+        if(hotspotIp==null){
+            return createDefaultIPs();
+        }
+        //Assume that the connected device has the same first 3 digits as the hotspot
+        final int[] elements=stringToIp(hotspotIp);
+        if(elements==null){
+            return createDefaultIPs();
+        }
+        final ArrayList<String> ret=new ArrayList<>();
+        for(int i=0;i<256;i++){
+            if(i!=elements[3]){
+                final String s=elements[0]+"."+elements[1]+"."+elements[2]+"."+i;
                 ret.add(s);
             }
-            return ret;
         }
+        return ret;
+
+    }
+
+    //We might have luck with the 192.168.43 prefix
+    //but most likely not !
+    private static ArrayList<String> createDefaultIPs(){
+        final ArrayList<String> ret=new ArrayList<>();
+        for(int i=2;i<256;i++){
+            final String s="192.168.43."+i;
+            ret.add(s);
+        }
+        return ret;
     }
 
 
     //Returns the 4 digits that make up an ip.
     //Example: 192.168.1.1 -> [192,168,1,1]
+    //returns null on failure
     private static int[] stringToIp(final String ip){
         //System.out.println("Ip is "+ip);
         String[] sub = ip.split("\\.");
         //for(int i=0;i<sub.length;i++){
         //    System.out.println("Chunck "+sub[i]);
         //}
+        if(sub.length!=4)return null;
         final int[] ret=new int[4];
         for(int i=0;i<4;i++){
-            ret[i]=Integer.parseInt(sub[i]);
+            try{
+                ret[i]=Integer.parseInt(sub[i]);
+            }catch (NumberFormatException e){
+                e.printStackTrace();
+                return null;
+            }
         }
         return ret;
     }
