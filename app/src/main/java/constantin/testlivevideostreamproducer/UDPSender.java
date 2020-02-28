@@ -1,6 +1,5 @@
 package constantin.testlivevideostreamproducer;
 
-//Put data in, hope the data comes out at the other end of the network
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -15,9 +14,10 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.nio.ByteBuffer;
 
-public class UDPSender {
-    private static final String TAG="UDPSender";
+//UDP -> Put data in, hope the data comes out at the other end of the network
+//Uses ndk to send UDP packets to specified ip and port
 
+public class UDPSender {
     private final String IP; //"10.183.84.95"
     private static final int PORT=5600;
 
