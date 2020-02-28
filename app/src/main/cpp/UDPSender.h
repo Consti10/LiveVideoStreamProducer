@@ -10,7 +10,17 @@
 
 class UDPSender{
 public:
+    /**
+     * Construct a UDP sender that sends UDP data packets
+     * @param IP ipv4 address to send data to
+     * @param Port port for sending data
+     */
     UDPSender(const std::string& IP,const int Port);
+    /**
+     * send data to the ip and port set previously. Logs error on failure.
+     * If data length exceeds the max UDP packet size, the method splits data and
+     * calls itself recursively
+     */
     void send(const uint8_t* data,ssize_t data_length);
 private:
     int sockfd;
