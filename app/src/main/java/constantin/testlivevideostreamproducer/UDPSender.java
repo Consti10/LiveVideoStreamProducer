@@ -18,9 +18,7 @@ import java.nio.ByteBuffer;
 //Uses ndk to send UDP packets to specified ip and port
 
 public class UDPSender {
-    private final String IP; //"10.183.84.95"
     private static final int PORT=5600;
-
     static {
         System.loadLibrary("UDPSender");
     }
@@ -34,7 +32,8 @@ public class UDPSender {
 
 
     UDPSender(final Context context){
-        IP= PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.KEY_SP_UDP_IP),"192.168.1.172");
+        //"10.183.84.95"
+        final String IP = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.KEY_SP_UDP_IP), "192.168.1.172");
         nativeInstance=nativeConstruct(IP,PORT);
     }
 

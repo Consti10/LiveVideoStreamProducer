@@ -101,9 +101,9 @@ public class AVideoStream extends AppCompatActivity{
             codec= MediaCodec.createEncoderByType("video/avc");
             MediaFormat format = MediaFormat.createVideoFormat("video/avc",W,H);
             format.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface);
-            format.setInteger(MediaFormat.KEY_BIT_RATE,2*1024*1024); //X MBit/s
+            format.setInteger(MediaFormat.KEY_BIT_RATE,5*1024*1024); //X MBit/s
             format.setInteger(MediaFormat.KEY_FRAME_RATE,MDEIACODEC_ENCODER_TARGET_FPS);
-            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL,10);
+            format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL,1);
             //format.setInteger(MediaFormat.KEY_LEVEL,MediaCodecInfo.CodecProfileLevel.AVCLevel32);
             //format.setInteger(MediaFormat.KEY_PROFILE,MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
             codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);

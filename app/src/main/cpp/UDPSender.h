@@ -25,7 +25,9 @@ public:
 private:
     int sockfd;
     sockaddr_in address;
-    static constexpr const size_t UDP_PACKET_MAX_SIZE=65508-1;
+    //https://en.wikipedia.org/wiki/User_Datagram_Protocol
+    //65,507 bytes (65,535 − 8 byte UDP header − 20 byte IP header).
+    static constexpr const size_t UDP_PACKET_MAX_SIZE=65507;
 };
 
 
