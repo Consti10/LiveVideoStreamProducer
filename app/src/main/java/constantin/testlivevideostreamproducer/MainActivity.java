@@ -1,6 +1,7 @@
 package constantin.testlivevideostreamproducer;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -9,6 +10,7 @@ import androidx.preference.PreferenceManager;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -68,11 +70,24 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.autofill_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String ip=IPResolver.resolveIpConnectedToHotspot(context);
-                if(ip!=null){
-                    editText.setText(ip);
-                    writeIpAddress(context,ip);
-                    Toast.makeText(context,"Set ip to "+ip,Toast.LENGTH_LONG).show();
+                final List<String> ips=IPResolver.findAllPossibleClientIps(context);
+                if(ips.size()!=0){
+                    final CharSequence[] items =new CharSequence[ips.size()];
+                    for(int i=0;i<ips.size();i++){
+                        items[i]=ips.get(i);
+                    }
+                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    builder.setTitle("Make your selection");
+                    builder.setItems(items, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int item) {
+                            final String ip=ips.get(item);
+                            editText.setText(ip);
+                            writeIpAddress(context,ip);
+                            Toast.makeText(context,"Set ip to "+ip,Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    AlertDialog alert = builder.create();
+                    alert.show();
                 }else{
                     Toast.makeText(context,"Cannot autofill ip",Toast.LENGTH_LONG).show();
                 }

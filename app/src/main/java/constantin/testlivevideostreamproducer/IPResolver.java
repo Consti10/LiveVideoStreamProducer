@@ -15,21 +15,24 @@ import java.util.List;
 public class IPResolver {
     private static final String TAG="IPResolver";
 
-    //Try to find the IP of the ground unit - e.g. the first device connected to the WIFI hotspot
-    //This methods makes some assumptions that might not be true on all devices - but testing is the only
-    //way to find out if they work
-    //return IP on success, null otherwise
-    public static String resolveIpConnectedToHotspot(final Context c){
+    // Find all possible client IP addresses
+    public static List<String> findAllPossibleClientIps(final Context c){
         final ArrayList<String> ipsToTest=getIpsToPing();
-
        final List<String> allReachableAddresses= HelperPingIP.pingAllIPsMultiThreaded(ipsToTest);
         for(final String ip:allReachableAddresses){
             System.out.println("Found ip:"+ip);
         }
-        if(allReachableAddresses.size()==0){
-            return null;
+        return allReachableAddresses;
+    }
+
+    private static ArrayList<String> getIpsToPing(){
+        final ArrayList<Inet4Address> hotspotIp=getWifiOrTetheringIpAddresses();
+        final ArrayList<String> ret=new ArrayList<>();
+        for(final Inet4Address address:hotspotIp){
+            System.out.println("Possible range(s) are "+address);
+            ret.addAll(new MyIPv4(address).getAllSubRangeIpAddressesString());
         }
-        return allReachableAddresses.get(0);
+       return ret;
     }
 
     // Returns a list of all IP addresses that are either WIFI or WIFI hotspot or TETHERING
@@ -84,14 +87,5 @@ public class IPResolver {
         }
         Log.d(TAG,"Found proper IP for Network interface "+networkInterface.getDisplayName());
         return addresses.get(0);
-    }
-
-
-    private static ArrayList<String> getIpsToPing(){
-        final ArrayList<Inet4Address> hotspotIp=getWifiOrTetheringIpAddresses();
-        System.out.println("Selected ip is "+hotspotIp.get(0));
-
-       return new MyIPv4(hotspotIp.get(0)).getAllSubRangeIpAddresses();
-
     }
 }

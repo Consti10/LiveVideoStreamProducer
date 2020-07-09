@@ -18,12 +18,14 @@ public class MyIPv4 {
 
     // Example: For 192.168.1.1 it returns a list with (192.168.1.0 <-> 192.168.1.255 )
     // But the base address (aka 192.168.1.1 ) is not contained in this list
-    public ArrayList<String> getAllSubRangeIpAddresses(){
+    //This methods makes some assumptions that might not be true on all devices - but testing is the only
+    //way to find out if they work
+    public ArrayList<String> getAllSubRangeIpAddressesString(){
         final ArrayList<String> ret=new ArrayList<>();
         for(int i=0;i<256;i++){
             if(i!=data[3]){
                 final String s=asString(new int[]{data[0],data[1],data[2],i});
-                System.out.println(s);
+                //System.out.println(s);
                 ret.add(s);
             }
         }
