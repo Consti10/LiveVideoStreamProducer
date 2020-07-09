@@ -30,7 +30,7 @@ UDPSender::UDPSender(const std::string &IP,const int Port) {
 //Split data into smaller packets when exceeding UDP max packet size
 void UDPSender::send(const uint8_t *data, ssize_t data_length) {
     if(data_length<=0)return;
-    MLOGD<<"Sending udp data "<<data_length;
+    //MLOGD<<"Sending udp data "<<data_length;
     if(data_length>UDP_PACKET_MAX_SIZE){
         const auto result=sendto(sockfd,data,UDP_PACKET_MAX_SIZE, 0, (struct sockaddr *)&(address), sizeof(struct sockaddr_in));
         if(result<0){
