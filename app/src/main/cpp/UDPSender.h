@@ -24,7 +24,7 @@ public:
     void send(const uint8_t* data,ssize_t data_length);
 private:
     int sockfd;
-    sockaddr_in address;
+    sockaddr_in address{};
     //https://en.wikipedia.org/wiki/User_Datagram_Protocol
     //65,507 bytes (65,535 − 8 byte UDP header − 20 byte IP header).
     static constexpr const size_t UDP_PACKET_MAX_SIZE=65507;

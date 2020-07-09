@@ -34,6 +34,7 @@ public class UDPSender {
     UDPSender(final Context context){
         //"10.183.84.95"
         final String IP = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.KEY_SP_UDP_IP), "192.168.1.172");
+        Log.d("UDPSender","Sending to IP "+IP);
         nativeInstance=nativeConstruct(IP,PORT);
     }
 

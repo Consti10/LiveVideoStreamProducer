@@ -145,6 +145,10 @@ public class AVideoStream extends AppCompatActivity{
             //Once the camera was opened, we add the listener for the TextureView.
             //Which will then call the startStream()
             previewTextureView.setSurfaceTextureListener(surfaceTextureListener);
+            // If the textureView is already available, the callback won't get called - do it manually
+            if(previewTextureView.isAvailable()){
+                surfaceTextureListener.onSurfaceTextureAvailable(previewTextureView.getSurfaceTexture(), previewTextureView.getWidth(), previewTextureView.getHeight());
+            }
         }
         @Override
         public void onDisconnected(CameraDevice camera) {
@@ -159,6 +163,7 @@ public class AVideoStream extends AppCompatActivity{
     private final TextureView.SurfaceTextureListener surfaceTextureListener=new TextureView.SurfaceTextureListener() {
         @Override
         public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+            Log.d(TAG,"onSurfaceTextureAvailable");
             previewTexture=surface;
             startPreviewAndEncoding();
         }
@@ -172,7 +177,7 @@ public class AVideoStream extends AppCompatActivity{
         public void onSurfaceTextureUpdated(SurfaceTexture surface) { }
     };
 
-    private final MediaCodec.Callback mediaCodecCallback=new MediaCodec.Callback() {
+    /*private final MediaCodec.Callback mediaCodecCallback=new MediaCodec.Callback() {
         @Override
         public void onInputBufferAvailable(@NonNull MediaCodec codec, int index) {
             Log.d(TAG,"MediaCodec::onInputBufferAvailable");
@@ -200,7 +205,7 @@ public class AVideoStream extends AppCompatActivity{
             mUDPSender.sendAsync(csd0);
             mUDPSender.sendAsync(csd1);
         }
-    };
+    };*/
 
 
     private void startPreviewAndEncoding(){
