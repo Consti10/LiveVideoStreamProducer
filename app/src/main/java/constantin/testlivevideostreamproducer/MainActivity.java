@@ -52,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         final EditText editText=findViewById(R.id.ip_address_edit_text);
+        editText.setText(getIpAddress(context));
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -74,10 +75,10 @@ public class MainActivity extends AppCompatActivity {
                 if(ips.size()!=0){
                     final CharSequence[] items =new CharSequence[ips.size()];
                     for(int i=0;i<ips.size();i++){
-                        items[i]=ips.get(i);
+                        items[i]=ips.get(i)+"";
                     }
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Make your selection");
+                    builder.setTitle("Select destination IP");
                     builder.setItems(items, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int item) {
                             final String ip=ips.get(item);
@@ -99,6 +100,11 @@ public class MainActivity extends AppCompatActivity {
     private static void writeIpAddress(final Context context, final String ip){
         PreferenceManager.getDefaultSharedPreferences(context).edit().
                 putString(context.getString(R.string.KEY_SP_UDP_IP),ip).commit();
+    }
+    @SuppressLint("ApplySharedPref")
+    private static String getIpAddress(final Context context){
+        return PreferenceManager.getDefaultSharedPreferences(context).
+                getString(context.getString(R.string.KEY_SP_UDP_IP),"192.168.1.1");
     }
 
     //Permissions stuff

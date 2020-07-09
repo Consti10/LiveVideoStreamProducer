@@ -30,17 +30,20 @@ UDPSender::UDPSender(const std::string &IP,const int Port) {
 //Split data into smaller packets when exceeding UDP max packet size
 void UDPSender::send(const uint8_t *data, ssize_t data_length) {
     if(data_length<=0)return;
-    //MLOGD<<"Sending udp data "<<data_length;
     if(data_length>UDP_PACKET_MAX_SIZE){
         const auto result=sendto(sockfd,data,UDP_PACKET_MAX_SIZE, 0, (struct sockaddr *)&(address), sizeof(struct sockaddr_in));
         if(result<0){
-            MLOGD<<"Cannot send data";
+            MLOGE<<"Cannot send data "<<UDP_PACKET_MAX_SIZE<<" "<<strerror(errno);
+        }else{
+            //MLOGD<<"Sent "<<UDP_PACKET_MAX_SIZE;
         }
         send(&data[UDP_PACKET_MAX_SIZE],data_length-UDP_PACKET_MAX_SIZE);
     }else{
         const auto result=sendto(sockfd,data,(size_t)data_length, 0, (struct sockaddr *)&(address), sizeof(struct sockaddr_in));
         if(result<0){
-            MLOGD<<"Cannot send data";
+            MLOGE<<"Cannot send data "<<data_length<<" "<<strerror(errno);
+        }else{
+            //MLOGD<<"Sent "<<data_length;
         }
     }
 }
@@ -75,6 +78,9 @@ JNI_METHOD(void, nativeSend)
 (JNIEnv *env, jobject obj, jlong p,jobject buf,jint size) {
     //jlong size=env->GetDirectBufferCapacity(buf);
     auto *data = (jbyte*)env->GetDirectBufferAddress(buf);
+    if(data== nullptr){
+        MLOGE<<"Something wrong with the byte buffer (is it direct ?)";
+    }
     //LOGD("size %d",size);
     native(p)->send((uint8_t*) data,(ssize_t) size);
 }

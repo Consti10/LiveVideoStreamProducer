@@ -32,6 +32,7 @@ import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.Objects;
 
 //Note: Pausing /resuming is not supported.
 //Once started,everything runs until onDestroy() is called
@@ -58,6 +59,11 @@ public class AVideoStream extends AppCompatActivity{
 
     private UDPSender mUDPSender;
     private Thread drainEncoderThread;
+    // Every n frames send sps pps data to allow re-starting of the stream
+    private boolean SEND_SPS_PPS_EVERY_N_FRAMES=false;
+    private ByteBuffer currentCSD0;
+    private ByteBuffer currentCSD1;
+    private int haveToManuallySendKeyFrame=0;
 
 
     @SuppressLint("MissingPermission")
@@ -81,24 +87,36 @@ public class AVideoStream extends AppCompatActivity{
                 while (!Thread.currentThread().isInterrupted()){
                     final MediaCodec.BufferInfo bufferInfo=new MediaCodec.BufferInfo();
                     if(codec!=null){
-                        final int outputBufferId = codec.dequeueOutputBuffer(bufferInfo,0);
+                        final int outputBufferId = codec.dequeueOutputBuffer(bufferInfo,1000*2);
                         if (outputBufferId >= 0) {
-                            ByteBuffer outputBuffer = codec.getOutputBuffer(outputBufferId);
-                            MediaFormat bufferFormat = codec.getOutputFormat(outputBufferId); // option A
-                            // bufferFormat is identical to outputFormat
-                            //Log.d(TAG,"MediaCodec2::onOutputBufferAvailable");
+                            //Log.d(TAG,"NEW OUTPUT BUFFER"+outputBufferId);
+                            final ByteBuffer outputBuffer = codec.getOutputBuffer(outputBufferId);
+                            if(SEND_SPS_PPS_EVERY_N_FRAMES){
+                                if(haveToManuallySendKeyFrame==0){
+                                    Log.d(TAG,"Manually inserting SPS & PPS");
+                                    //Log.d(TAG,"csd0"+currentCSD0.isDirect());
+                                    mUDPSender.sendOnCurrentThread(currentCSD0);
+                                    mUDPSender.sendOnCurrentThread(currentCSD1);
+                                }
+                                haveToManuallySendKeyFrame++;
+                                haveToManuallySendKeyFrame=haveToManuallySendKeyFrame % 2;
+                            }
                             mUDPSender.sendOnCurrentThread(outputBuffer);
-
-                            // outputBuffer is ready to be processed or rendered.
                             codec.releaseOutputBuffer(outputBufferId,false);
 
                         } else if (outputBufferId == MediaCodec.INFO_OUTPUT_FORMAT_CHANGED) {
                             // Subsequent data will conform to new format.
-                            // Can ignore if using getOutputFormat(outputBufferId)
-                            //codec.getOu
-                            //outputFormat = codec.getOutputFormat(); // option B
-                            //MediaFormat bufferFormat = codec.getOutputFormat();
-                            //Log.d(TAG,"INFO_OUTPUT_FORMAT_CHANGED "+bufferFormat.toString());
+                            final MediaFormat currentOutputFormat= codec.getOutputFormat();
+                            Log.d(TAG,"INFO_OUTPUT_FORMAT_CHANGED "+currentOutputFormat.toString());
+                            // Every sync frame has sps and pps prepended - wo do not need to send the
+                            // sps and pps data manually
+                            if(currentOutputFormat.containsKey(MediaFormat.KEY_PREPEND_HEADER_TO_SYNC_FRAMES)){
+                                SEND_SPS_PPS_EVERY_N_FRAMES=false;
+                            }else{
+                                SEND_SPS_PPS_EVERY_N_FRAMES=true;
+                            }
+                            currentCSD0=UDPSender.createDirectByteBuffer(Objects.requireNonNull(currentOutputFormat.getByteBuffer("csd-0")));
+                            currentCSD1=UDPSender.createDirectByteBuffer(Objects.requireNonNull(currentOutputFormat.getByteBuffer("csd-1")));
                         }
                     }
                 }
@@ -142,27 +160,6 @@ public class AVideoStream extends AppCompatActivity{
             //No point in continuing if we cannot open camera
             notifyUserAndFinishActivity("Cannot open camera");
         }
-
-        try {
-            Enumeration<NetworkInterface> interfaces= NetworkInterface.getNetworkInterfaces();
-            while(interfaces.hasMoreElements()){
-                NetworkInterface networkInterface = interfaces.nextElement();
-                System.out.println("NI "+networkInterface.getDisplayName());
-                final java.util.List<InterfaceAddress> addresses=networkInterface.getInterfaceAddresses();
-                for(final InterfaceAddress address : addresses){
-                    System.out.println("AD "+address.toString());
-                }
-            }
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-        /*try {
-            InetAddress address=InetAddress.getLocalHost();
-            System.out.println("Local host "+address.toString());
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }*/
-
     }
 
 

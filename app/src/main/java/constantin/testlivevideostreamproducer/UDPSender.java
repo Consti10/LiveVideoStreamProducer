@@ -18,6 +18,7 @@ import java.nio.ByteBuffer;
 //Uses ndk to send UDP packets to specified ip and port
 
 public class UDPSender {
+    private static final String TAG="UDPSender";
     private static final int PORT=5600;
     static {
         System.loadLibrary("UDPSender");
@@ -51,6 +52,11 @@ public class UDPSender {
     //When using a special Handler for the Encoder*s callbacks
     //We do not need to create an extra thread
     public void sendOnCurrentThread(final ByteBuffer data){
+        if(!data.isDirect()){
+            // We need to create a direct byte buffer such that the native code can access it
+            //final ByteBuffer tmpDirectByteBuffer=ByteBuffer.allocateDirect(data.remaining());
+            Log.e(TAG,"Cannot send non-direct byte buffer.Convert to direct first.");
+        }
         nativeSend(nativeInstance,data,data.remaining());
     }
 
@@ -62,6 +68,14 @@ public class UDPSender {
         } finally {
             super.finalize();
         }
+    }
+
+    public static ByteBuffer createDirectByteBuffer(final ByteBuffer source){
+        ByteBuffer ret=ByteBuffer.allocateDirect(source.capacity());
+        ret.rewind();
+        ret.put(source);
+        ret.flip();
+        return ret;
     }
 
 }
