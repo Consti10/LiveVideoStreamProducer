@@ -15,6 +15,8 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.Range;
@@ -22,8 +24,14 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Toast;
 
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Enumeration;
 
 //Note: Pausing /resuming is not supported.
 //Once started,everything runs until onDestroy() is called
@@ -134,6 +142,27 @@ public class AVideoStream extends AppCompatActivity{
             //No point in continuing if we cannot open camera
             notifyUserAndFinishActivity("Cannot open camera");
         }
+
+        try {
+            Enumeration<NetworkInterface> interfaces= NetworkInterface.getNetworkInterfaces();
+            while(interfaces.hasMoreElements()){
+                NetworkInterface networkInterface = interfaces.nextElement();
+                System.out.println("NI "+networkInterface.getDisplayName());
+                final java.util.List<InterfaceAddress> addresses=networkInterface.getInterfaceAddresses();
+                for(final InterfaceAddress address : addresses){
+                    System.out.println("AD "+address.toString());
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        /*try {
+            InetAddress address=InetAddress.getLocalHost();
+            System.out.println("Local host "+address.toString());
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }*/
+
     }
 
 
