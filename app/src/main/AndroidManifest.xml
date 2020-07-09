@@ -18,7 +18,6 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ADemoUDPStream"></activity>
         <activity
             android:name=".AVideoStream"
             android:screenOrientation="portrait"></activity>
