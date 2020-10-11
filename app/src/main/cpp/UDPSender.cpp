@@ -45,6 +45,8 @@ void UDPSender::splitAndSend(const uint8_t *data, ssize_t data_length) {
         }
     }
     if(data_length<=0)return;
+    //for(int i=0;i<data_length;i+=MAX_VIDEO_DATA_PACKET_SIZE){
+    //}
     if(data_length>MAX_VIDEO_DATA_PACKET_SIZE){
         mySendTo(data,MAX_VIDEO_DATA_PACKET_SIZE);
         splitAndSend(&data[MAX_VIDEO_DATA_PACKET_SIZE], data_length - MAX_VIDEO_DATA_PACKET_SIZE);
@@ -60,7 +62,7 @@ void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
         std::memcpy(&workingBuffer.data()[sizeof(uint32_t)],data,data_length);
         sequenceNumber++;
         // Send the packet N times
-        for(int i=0;i<4;i++){
+        for(int i=0;i<2;i++){
             const auto result = sendto(sockfd,workingBuffer.data(), data_length+sizeof(uint32_t), 0, (struct sockaddr *) &(address),
                                        sizeof(struct sockaddr_in));
             if (result < 0) {
