@@ -39,6 +39,7 @@ private:
     AvgCalculator avgDeltaBetweenVideoPackets;
     std::chrono::steady_clock::time_point lastForwardedPacket{};
     Chronometer timeSpentSending;
+    //
 };
 
 
