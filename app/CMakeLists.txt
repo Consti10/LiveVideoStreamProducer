@@ -5,6 +5,8 @@ find_library( log-lib
 
 include_directories(src/main/cpp)
 
+include_directories(src/main/cpp/Helper)
+
 add_library( UDPSender
         SHARED
        src/main/cpp/UDPSender.cpp

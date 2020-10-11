@@ -7,6 +7,9 @@
 
 #include <string>
 #include <arpa/inet.h>
+#include <array>
+
+#include <Helper/TimeHelper.hpp>
 
 class UDPSender{
 public:
@@ -21,13 +24,21 @@ public:
      * If data length exceeds the max UDP packet size, the method splits data and
      * calls itself recursively
      */
-    void send(const uint8_t* data,ssize_t data_length);
+    void splitAndSend(const uint8_t* data, ssize_t data_length);
+    //
+    void mySendTo(const uint8_t* data,ssize_t data_length);
 private:
     int sockfd;
     sockaddr_in address{};
     //https://en.wikipedia.org/wiki/User_Datagram_Protocol
     //65,507 bytes (65,535 − 8 byte UDP header − 20 byte IP header).
     static constexpr const size_t UDP_PACKET_MAX_SIZE=65507;
+    static constexpr const size_t MAX_VIDEO_DATA_PACKET_SIZE=UDP_PACKET_MAX_SIZE-4;
+    int32_t sequenceNumber=0;
+    std::array<uint8_t,UDP_PACKET_MAX_SIZE> workingBuffer;
+    AvgCalculator avgDeltaBetweenVideoPackets;
+    std::chrono::steady_clock::time_point lastForwardedPacket{};
+    Chronometer timeSpentSending;
 };
 
 

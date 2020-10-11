@@ -17,7 +17,9 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Process;
 import android.util.Log;
 import android.util.Range;
 import android.view.Surface;
@@ -84,6 +86,8 @@ public class AVideoStream extends AppCompatActivity{
         drainEncoderThread=new Thread(new Runnable() {
             @Override
             public void run() {
+                Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO);
+                Thread.currentThread().setName("DrainEnc");
                 while (!Thread.currentThread().isInterrupted()){
                     final MediaCodec.BufferInfo bufferInfo=new MediaCodec.BufferInfo();
                     if(codec!=null){
@@ -93,7 +97,7 @@ public class AVideoStream extends AppCompatActivity{
                             final ByteBuffer outputBuffer = codec.getOutputBuffer(outputBufferId);
                             if(SEND_SPS_PPS_EVERY_N_FRAMES){
                                 if(haveToManuallySendKeyFrame==0){
-                                    Log.d(TAG,"Manually inserting SPS & PPS");
+                                    //Log.d(TAG,"Manually inserting SPS & PPS");
                                     //Log.d(TAG,"csd0"+currentCSD0.isDirect());
                                     mUDPSender.sendOnCurrentThread(currentCSD0);
                                     mUDPSender.sendOnCurrentThread(currentCSD1);
@@ -130,6 +134,11 @@ public class AVideoStream extends AppCompatActivity{
             format.setInteger(MediaFormat.KEY_BIT_RATE,5*1024*1024); //X MBit/s
             format.setInteger(MediaFormat.KEY_FRAME_RATE,MDEIACODEC_ENCODER_TARGET_FPS);
             format.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL,1);
+            //format.setInteger(MediaFormat.KEY_INTRA_REFRESH_PERIOD,1);
+            if(android.os.Build.VERSION.SDK_INT>28){
+                format.setInteger(MediaFormat.KEY_LATENCY,0);
+                format.setInteger(MediaFormat.KEY_PRIORITY,0);
+            }
             //format.setInteger(MediaFormat.KEY_LEVEL,MediaCodecInfo.CodecProfileLevel.AVCLevel32);
             //format.setInteger(MediaFormat.KEY_PROFILE,MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline);
             codec.configure(format, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE);
