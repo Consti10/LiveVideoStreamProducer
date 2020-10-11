@@ -55,7 +55,7 @@ void UDPSender::splitAndSend(const uint8_t *data, ssize_t data_length) {
 
 void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
     timeSpentSending.start();
-    if(true) {
+    if(false) {
         std::memcpy(workingBuffer.data(),&sequenceNumber,sizeof(uint32_t));
         std::memcpy(&workingBuffer.data()[sizeof(uint32_t)],data,data_length);
         sequenceNumber++;
@@ -74,7 +74,7 @@ void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
         if(result<0){
             MLOGE<<"Cannot send data "<<UDP_PACKET_MAX_SIZE<<" "<<strerror(errno);
         }else{
-            MLOGD<<"Sent "<<UDP_PACKET_MAX_SIZE;
+            //MLOGD<<"Sent "<<UDP_PACKET_MAX_SIZE;
         }
     }
     timeSpentSending.stop();
