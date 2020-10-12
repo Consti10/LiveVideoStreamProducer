@@ -62,21 +62,21 @@ void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
         std::memcpy(&workingBuffer.data()[sizeof(uint32_t)],data,data_length);
         sequenceNumber++;
         // Send the packet N times
-        for(int i=0;i<2;i++){
+        for(int i=0;i<1;i++){
             const auto result = sendto(sockfd,workingBuffer.data(), data_length+sizeof(uint32_t), 0, (struct sockaddr *) &(address),
                                        sizeof(struct sockaddr_in));
             if (result < 0) {
-                MLOGE << "Cannot send data " << UDP_PACKET_MAX_SIZE << " " << strerror(errno)<<" ret:"<<result;
+                MLOGE << "Cannot send data " << data_length << " " << strerror(errno)<<" ret:"<<result;
             } else {
-                //MLOGD << "Sent " << UDP_PACKET_MAX_SIZE;
+                //MLOGD << "Sent " << data_length;
             }
         }
     }else{
         const auto result=sendto(sockfd,data,data_length, 0, (struct sockaddr *)&(address), sizeof(struct sockaddr_in));
         if(result<0){
-            MLOGE<<"Cannot send data "<<UDP_PACKET_MAX_SIZE<<" "<<strerror(errno);
+            MLOGE<<"Cannot send data "<<data_length<<" "<<strerror(errno);
         }else{
-            //MLOGD<<"Sent "<<UDP_PACKET_MAX_SIZE;
+            //MLOGD<<"Sent "<<data_length;
         }
     }
     timeSpentSending.stop();

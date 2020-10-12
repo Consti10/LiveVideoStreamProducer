@@ -66,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 writeIpAddress(context,s.toString());
+                Toast.makeText(context,"Set IP "+s.toString(),Toast.LENGTH_LONG).show();
             }
         });
         findViewById(R.id.autofill_button).setOnClickListener(new View.OnClickListener() {

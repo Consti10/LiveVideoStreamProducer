@@ -258,7 +258,7 @@ public class AVideoStream extends AppCompatActivity{
             captureRequestBuilder.addTarget(encoderInputSurface);
 
             //Log.d("FPS", "SYNC_MAX_LATENCY_PER_FRAME_CONTROL: " + Arrays.toString(fpsRanges));
-            Range<Integer> fpsRange=new Range<>(60,60);
+            Range<Integer> fpsRange=new Range<>(30,60);
             captureRequestBuilder.set(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,fpsRange);
 
             cameraDevice.createCaptureSession(Arrays.asList(previewSurface,encoderInputSurface), new CameraCaptureSession.StateCallback() {
