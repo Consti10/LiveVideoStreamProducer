@@ -1,4 +1,4 @@
-package constantin.testlivevideostreamproducer;
+package constantin.livevideostreamproducer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,9 +15,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Process;
 import android.util.Log;
@@ -26,14 +23,8 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.widget.Toast;
 
-import java.net.InetAddress;
-import java.net.InterfaceAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Objects;
 
 //Note: Pausing /resuming is not supported.

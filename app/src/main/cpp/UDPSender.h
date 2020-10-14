@@ -34,7 +34,7 @@ private:
     //65,507 bytes (65,535 − 8 byte UDP header − 20 byte IP header).
     static constexpr const size_t UDP_PACKET_MAX_SIZE=65507;
     //static constexpr const size_t MAX_VIDEO_DATA_PACKET_SIZE=UDP_PACKET_MAX_SIZE--sizeof(uint32_t);
-    static constexpr const size_t MAX_VIDEO_DATA_PACKET_SIZE=UDP_PACKET_MAX_SIZE-sizeof(uint32_t);
+    static constexpr const size_t MAX_VIDEO_DATA_PACKET_SIZE=1024-sizeof(uint32_t);
     int32_t sequenceNumber=0;
     std::array<uint8_t,UDP_PACKET_MAX_SIZE> workingBuffer;
     AvgCalculator avgDeltaBetweenVideoPackets;

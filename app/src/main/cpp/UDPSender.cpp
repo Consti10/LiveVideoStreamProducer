@@ -62,7 +62,7 @@ void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
         std::memcpy(&workingBuffer.data()[sizeof(uint32_t)],data,data_length);
         sequenceNumber++;
         // Send the packet N times
-        for(int i=0;i<1;i++){
+        for(int i=0;i<8;i++){
             const auto result = sendto(sockfd,workingBuffer.data(), data_length+sizeof(uint32_t), 0, (struct sockaddr *) &(address),
                                        sizeof(struct sockaddr_in));
             if (result < 0) {
@@ -92,7 +92,7 @@ void UDPSender::mySendTo(const uint8_t* data, ssize_t data_length) {
 
 #define JNI_METHOD(return_type, method_name) \
   JNIEXPORT return_type JNICALL              \
-      Java_constantin_testlivevideostreamproducer_UDPSender_##method_name
+      Java_constantin_livevideostreamproducer_UDPSender_##method_name
 
 inline jlong jptr(UDPSender *p) {
     return reinterpret_cast<intptr_t>(p);

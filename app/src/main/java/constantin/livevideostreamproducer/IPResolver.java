@@ -1,4 +1,4 @@
-package constantin.testlivevideostreamproducer;
+package constantin.livevideostreamproducer;
 
 import android.content.Context;
 import android.util.Log;

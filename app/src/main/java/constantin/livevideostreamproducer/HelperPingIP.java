@@ -1,4 +1,4 @@
-package constantin.testlivevideostreamproducer;
+package constantin.livevideostreamproducer;
 
 import java.io.IOException;
 import java.net.InetAddress;

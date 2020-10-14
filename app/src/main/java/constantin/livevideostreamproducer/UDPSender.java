@@ -1,4 +1,4 @@
-package constantin.testlivevideostreamproducer;
+package constantin.livevideostreamproducer;
 
 
 import android.content.Context;
@@ -7,11 +7,6 @@ import android.util.Log;
 
 import androidx.preference.PreferenceManager;
 
-import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
 import java.nio.ByteBuffer;
 
 //UDP -> Put data in, hope the data comes out at the other end of the network

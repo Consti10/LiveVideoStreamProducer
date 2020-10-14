@@ -1,4 +1,4 @@
-package constantin.testlivevideostreamproducer;
+package constantin.livevideostreamproducer;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
                 writeIpAddress(context,s.toString());
-                Toast.makeText(context,"Set IP "+s.toString(),Toast.LENGTH_LONG).show();
+                Toast.makeText(context,"Set IP "+s.toString(),Toast.LENGTH_SHORT).show();
             }
         });
         findViewById(R.id.autofill_button).setOnClickListener(new View.OnClickListener() {
